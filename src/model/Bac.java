@@ -43,8 +43,13 @@ public class Bac {
     		this.contenu = nContenu;
     	}
     }
-    
-    public boolean estCorrect(Type t) {
+	public void setCapacite(int capacite) {
+		if (capacite > 0) {
+			this.capacite = capacite;
+		}
+	}
+
+	public boolean estCorrect(Type t) {
     	if (t == Type.verre) {
     		if (this.couleur == Couleur.vert) {
     			return true;
@@ -125,14 +130,18 @@ public class Bac {
         this.contenu = 0;
         System.out.println("Bac " + idBac + " vidé.");
     }
-    
-    
+
+
+	@Override
 	public String toString() {
-		return "Bac {\n\tId Bac : " + this.idBac + "\n\tAdresse Bac : " + this.adresseBac
-			+ "\n\tCentre de tri : " + this.centreTri.getIdCentre() + "\n\tCouleur : "
-			+ this.couleur + "\n\tCapacite : " + this.capacite + "\n\tPoids : " + this.contenu + "\n}\n"
-		;
+		return "Bac {\n\tId Bac : " + this.idBac
+				+ "\n\tAdresse Bac : " + this.adresseBac
+				+ "\n\tCentre de tri : " + this.centreTri.getIdCentre()
+				+ "\n\tCouleur : " + this.couleur
+				+ "\n\tCapacité : " + this.capacite
+				+ "\n\tPoids : " + this.contenu + "\n}";
 	}
+
 
 	public Bac(UUID idBac, CentreTri nCentre, Couleur nCol, int nCapa) {
     	if (nCentre != null && nCol != Couleur.toutCol && nCapa > 0) {

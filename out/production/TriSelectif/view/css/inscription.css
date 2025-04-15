@@ -1,49 +1,59 @@
-/* view/css/inscription.css */
+/* connection.css */
 
-.check-box-custom {
-    -fx-font-size: 14px;
-    -fx-padding: 5px 0;
+.login-container {
+    -fx-background-color: white;
+    -fx-background-radius: 10px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);
 }
 
-.check-box-custom .box {
-    -fx-background-color: #f5f5f5;
+.login-option {
+    -fx-background-color: #f8f8f8;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-cursor: hand;
     -fx-border-color: #e0e0e0;
-    -fx-border-radius: 3px;
-    -fx-background-radius: 3px;
-    -fx-pref-height: 18px;
-    -fx-pref-width: 18px;
+    -fx-border-width: 1px;
 }
 
-.check-box-custom:selected .box {
-    -fx-background-color: #4b96e1;
-    -fx-border-color: #4b96e1;
+.login-option:hover {
+    -fx-background-color: #f0f0f0;
+    -fx-border-color: #4CAF50;
 }
 
-.check-box-custom:selected .mark {
+.input-field {
+    -fx-background-color: #f8f8f8;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 1px;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
+}
+
+.input-field:focused {
+    -fx-border-color: #4CAF50;
     -fx-background-color: white;
 }
 
-.eye-button {
-    -fx-background-color: transparent;
-    -fx-padding: 0 10 0 10;
+.login-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
     -fx-cursor: hand;
-    -fx-font-size: 14px;
 }
 
-
-.eye-button:hover {
-    -fx-background-color: #f0f0f0;
-    -fx-background-radius: 50%;
+.login-button:hover {
+    -fx-background-color: #45a049;
 }
 
-.success-message {
+.hyperlink {
     -fx-text-fill: #4CAF50;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
 }
 
-.error-message {
-    -fx-text-fill: #D32F2F;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
+.hyperlink:hover {
+    -fx-underline: true;
 }

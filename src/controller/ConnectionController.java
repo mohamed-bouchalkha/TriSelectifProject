@@ -1,6 +1,5 @@
 package controller;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,84 +10,215 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
+import javafx.event.ActionEvent;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import dao.CentreTriDAO;
+import dao.AdresseDAO;
+import model.CentreTri;
+import model.Adresse;
+import main.Main; // Import de la classe Main pour accéder à la connexion
 
 public class ConnectionController {
 
-    @FXML
-    private TextField usernameField;
+    @FXML private Rectangle menageIndicator;
+    @FXML private Rectangle centreTriIndicator;
 
-    @FXML
-    private PasswordField passwordField;
+    @FXML private VBox menageLoginForm;
+    @FXML private VBox centreTriLoginForm;
 
-    @FXML
-    private Button loginButton;
+    @FXML private TextField menageNomCompte;
+    @FXML private PasswordField menageMotDePasse;
 
-    @FXML
-    private Hyperlink createAccountLink;
+    @FXML private TextField centreNomCentre;
+    @FXML private TextField centreAdresse;
 
-    @FXML
-    private Label messageLabel;
+    @FXML private Button menageLoginButton;
+    @FXML private Button centreTriLoginButton;
 
-    @FXML
-    private Rectangle userIndicator;
+    @FXML private Label messageLabel;
 
-    @FXML
-    private Rectangle adminIndicator;
+    // Variable pour suivre le type de compte sélectionné
+    private String selectedAccountType = "menage";
 
-    @FXML
-    private VBox loginForm;
-
-    private String userType = "user"; // Valeur par défaut
+    // Référence à la connexion de la base de données depuis Main
+    private Connection connection;
 
     @FXML
     public void initialize() {
-        // Configuration initiale - sélectionner l'option utilisateur par défaut
-        selectUserOption();
+        // Par défaut, l'option Ménage est sélectionnée
+        selectMenageOption();
 
-        // Effacer le message d'erreur quand l'utilisateur commence à saisir
-        usernameField.textProperty().addListener((observable, oldValue, newValue) -> {
-            messageLabel.setText("");
-        });
+        // Utiliser la connexion établie dans la classe Main
+        connection = Main.conn;
 
-        passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
-            messageLabel.setText("");
-        });
+        // Vérifier si la connexion est valide
+        if (connection == null) {
+            messageLabel.setText("Erreur: Connexion à la base de données non disponible");
+        }
     }
 
     @FXML
-    public void selectUserOption() {
-        userType = "user";
-        userIndicator.setFill(javafx.scene.paint.Color.valueOf("#2196F3"));
-        adminIndicator.setFill(javafx.scene.paint.Color.TRANSPARENT);
+    public void selectMenageOption() {
+        // Activer l'indicateur pour Ménage
+        menageIndicator.setFill(Color.valueOf("#4CAF50"));
+        centreTriIndicator.setFill(Color.TRANSPARENT);
+
+        // Afficher le formulaire pour Ménage et cacher celui pour Centre de Tri
+        menageLoginForm.setVisible(true);
+        menageLoginForm.setManaged(true);
+        centreTriLoginForm.setVisible(false);
+        centreTriLoginForm.setManaged(false);
+
+        // Mettre à jour le type de compte sélectionné
+        selectedAccountType = "menage";
+
+        // Effacer le message d'erreur précédent
+        messageLabel.setText("");
     }
 
     @FXML
-    public void selectAdminOption() {
-        userType = "admin";
-        adminIndicator.setFill(javafx.scene.paint.Color.valueOf("#2196F3"));
-        userIndicator.setFill(javafx.scene.paint.Color.TRANSPARENT);
+    public void selectCentreTriOption() {
+        // Activer l'indicateur pour Centre de Tri
+        centreTriIndicator.setFill(Color.valueOf("#4CAF50"));
+        menageIndicator.setFill(Color.TRANSPARENT);
+
+        // Afficher le formulaire pour Centre de Tri et cacher celui pour Ménage
+        centreTriLoginForm.setVisible(true);
+        centreTriLoginForm.setManaged(true);
+        menageLoginForm.setVisible(false);
+        menageLoginForm.setManaged(false);
+
+        // Mettre à jour le type de compte sélectionné
+        selectedAccountType = "centreTri";
+
+        // Effacer le message d'erreur précédent
+        messageLabel.setText("");
     }
 
     @FXML
-    public void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+    public void handleMenageLogin(ActionEvent event) {
+        String nomCompte = menageNomCompte.getText().trim();
+        String motDePasse = menageMotDePasse.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            messageLabel.setText("Veuillez remplir tous les champs.");
+        if (nomCompte.isEmpty() || motDePasse.isEmpty()) {
+            messageLabel.setText("Veuillez remplir tous les champs");
             return;
         }
 
-        // Logique de connexion à implémenter ici
-        // Pour l'instant, on affiche juste un message
-        messageLabel.setText("Tentative de connexion en tant que " +
-                (userType.equals("admin") ? "administrateur" : "utilisateur"));
+        try {
+            // Vérifier si la connexion est valide
+            if (connection == null) {
+                messageLabel.setText("Erreur: Connexion à la base de données non disponible");
+                return;
+            }
 
-        // TODO: Implémenter la vérification d'authentification avec la base de données
+            // Vérifier les identifiants dans la base de données
+            String sql = "SELECT * FROM Menage WHERE nomCompte = ? AND motDePasse = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, nomCompte);
+            stmt.setString(2, motDePasse);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                // Authentification réussie
+                redirectToWelcomePage("Ménage", nomCompte);
+            } else {
+                // Authentification échouée
+                messageLabel.setText("Nom de compte ou mot de passe incorrect");
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            messageLabel.setText("Erreur lors de la connexion");
+            e.printStackTrace();
+        } catch (IOException e) {
+            messageLabel.setText("Erreur lors du chargement de la page d'accueil");
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    public void handleCentreTriLogin(ActionEvent event) {
+        String nomCentre = centreNomCentre.getText().trim();
+        String adresse = centreAdresse.getText().trim();
+
+        if (nomCentre.isEmpty() || adresse.isEmpty()) {
+            messageLabel.setText("Veuillez remplir tous les champs");
+            return;
+        }
+
+        try {
+            // Vérifier si la connexion est valide
+            if (connection == null) {
+                messageLabel.setText("Erreur: Connexion à la base de données non disponible");
+                return;
+            }
+
+            // Rechercher le centre de tri par son nom
+            String sql = "SELECT ct.idCentre, ct.nomCentre, a.id AS adresse_id " +
+                    "FROM CentreTri ct " +
+                    "JOIN Adresse a ON ct.adresse_id = a.id " +
+                    "WHERE ct.nomCentre = ? AND " +
+                    "(CONCAT(a.numero, ' ', a.nomRue, ', ', a.codePostal, ' ', a.ville) = ? OR " +
+                    "a.nomRue = ?)";
+
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, nomCentre);
+            stmt.setString(2, adresse);
+            stmt.setString(3, adresse);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                int idCentre = rs.getInt("idCentre");
+
+                // Authentification réussie - Charger le CentreTri depuis la DAO
+                CentreTriDAO centreTriDAO = new CentreTriDAO(connection);
+                CentreTri centreTri = centreTriDAO.find(idCentre);
+
+                // Redirection vers la page d'accueil
+                redirectToWelcomePage("Centre de Tri", nomCentre);
+            } else {
+                // Centre de tri non trouvé
+                messageLabel.setText("Centre de tri non trouvé ou adresse incorrecte");
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            messageLabel.setText("Erreur lors de la connexion");
+            e.printStackTrace();
+        } catch (IOException e) {
+            messageLabel.setText("Erreur lors du chargement de la page d'accueil");
+            e.printStackTrace();
+        }
+    }
+
+    private void redirectToWelcomePage(String accountType, String name) throws IOException {
+        // Créer une page d'accueil simple avec "Hello [name]"
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/welcome.fxml"));
+        Parent welcomePage = loader.load();
+
+        // Si vous avez un contrôleur pour la page d'accueil, vous pouvez lui passer les informations
+        WelcomeController welcomeController = loader.getController();
+        welcomeController.setUserInfo(accountType, name);
+
+        // Créer une nouvelle scène avec la page d'accueil
+        Scene scene = new Scene(welcomePage);
+
+        // Obtenir la fenêtre actuelle et définir la nouvelle scène
+        Stage stage = (Stage) centreNomCentre.getScene().getWindow();
+        stage.setScene(scene);
+        stage.setTitle("Bienvenue - " + accountType);
+        stage.show();
     }
 
     @FXML
@@ -96,26 +226,22 @@ public class ConnectionController {
         try {
             // Charger la page d'inscription
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/inscription.fxml"));
-            Parent inscriptionView = loader.load();
+            Parent inscriptionPage = loader.load();
 
-            // Obtenir la scène actuelle
-            Scene currentScene = createAccountLink.getScene();
+            // Si vous avez un contrôleur pour la page d'inscription
+            InscriptionController inscriptionController = loader.getController();
+            inscriptionController.setAccountType(selectedAccountType);
 
-            // Remplacer le contenu de la scène
-            currentScene.setRoot(inscriptionView);
+            // Créer une nouvelle scène avec la page d'inscription
+            Scene scene = new Scene(inscriptionPage);
 
-            // Alternative: Ouvrir dans une nouvelle fenêtre
-            // Stage stage = new Stage();
-            // stage.setScene(new Scene(inscriptionView));
-            // stage.setTitle("Création de compte");
-            // stage.show();
-            //
-            // // Fermer la fenêtre actuelle si nécessaire
-            // Stage currentStage = (Stage) createAccountLink.getScene().getWindow();
-            // currentStage.close();
+            // Obtenir la fenêtre actuelle et définir la nouvelle scène
+            Stage stage = (Stage) ((Hyperlink) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
 
         } catch (IOException e) {
-            messageLabel.setText("Erreur lors du chargement de la page d'inscription.");
+            messageLabel.setText("Erreur lors du chargement de la page d'inscription");
             e.printStackTrace();
         }
     }

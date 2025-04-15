@@ -120,6 +120,12 @@ public class InscriptionController {
             togglePasswordButton.setText("👁"); // Change to show icon
         }
     }
+    private String accountType;
+
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
+    }
+
     @FXML
     public void handleInscription() {
         String nomCompte = nomCompteField.getText();

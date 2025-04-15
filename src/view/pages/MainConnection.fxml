@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
@@ -19,41 +18,48 @@
         </padding>
 
         <!-- En-tête -->
-        <Label text="Connexion à l'application" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label text="Connexion à Tri Sélectif" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
         <Label text="Choisissez votre type de compte" style="-fx-font-size: 14px; -fx-text-fill: #555555;" />
 
         <!-- Conteneur des options de connexion -->
         <HBox spacing="20" alignment="CENTER">
-            <!-- Option Utilisateur -->
-            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectUserOption">
+            <!-- Option Ménage -->
+            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectMenageOption">
                 <padding>
                     <Insets top="15" right="20" bottom="15" left="20"/>
                 </padding>
-                <Label text="👤" style="-fx-font-size: 32px;" />
-                <Label text="Utilisateur" style="-fx-font-size: 16px;" />
-                <Label text="Accès standard" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
-                <Rectangle fx:id="userIndicator" width="50" height="3" fill="transparent" />
+                <Label text="👪" style="-fx-font-size: 32px;" />
+                <Label text="Ménage" style="-fx-font-size: 16px;" />
+                <Label text="Compte personnel" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
+                <Rectangle fx:id="menageIndicator" width="50" height="3" fill="transparent" />
             </VBox>
 
-            <!-- Option Administrateur -->
-            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectAdminOption">
+            <!-- Option Centre de Tri -->
+            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectCentreTriOption">
                 <padding>
                     <Insets top="15" right="20" bottom="15" left="20"/>
                 </padding>
-                <Label text="🔑" style="-fx-font-size: 32px;" />
-                <Label text="Administrateur" style="-fx-font-size: 16px;" />
-                <Label text="Accès complet" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
-                <Rectangle fx:id="adminIndicator" width="50" height="3" fill="transparent" />
+                <Label text="♻️" style="-fx-font-size: 32px;" />
+                <Label text="Centre de Tri" style="-fx-font-size: 16px;" />
+                <Label text="Accès professionnel" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
+                <Rectangle fx:id="centreTriIndicator" width="50" height="3" fill="transparent" />
             </VBox>
         </HBox>
 
-        <!-- Formulaire de connexion -->
-        <VBox spacing="15" alignment="CENTER" fx:id="loginForm">
-            <TextField fx:id="usernameField" promptText="Nom d'utilisateur" styleClass="input-field" />
-            <PasswordField fx:id="passwordField" promptText="Mot de passe" styleClass="input-field" />
+        <!-- Formulaire de connexion pour Ménage (affiché par défaut) -->
+        <VBox spacing="15" alignment="CENTER" fx:id="menageLoginForm">
+            <TextField fx:id="menageNomCompte" promptText="Nom du compte" styleClass="input-field" />
+            <PasswordField fx:id="menageMotDePasse" promptText="Mot de passe" styleClass="input-field" />
+            <Hyperlink fx:id="createMenageAccountLink" text="Créer un compte ménage" styleClass="hyperlink" onAction="#handleCreateAccount" />
+            <Button fx:id="menageLoginButton" text="Connexion" styleClass="login-button" prefWidth="200" onAction="#handleMenageLogin" />
+        </VBox>
 
-            <Hyperlink fx:id="createAccountLink" text="Si vous n'avez pas un compte, créez un compte" styleClass="hyperlink" onAction="#handleCreateAccount" />
-            <Button fx:id="loginButton" text="Connexion" styleClass="login-button" prefWidth="200" onAction="#handleLogin" />
+        <!-- Formulaire de connexion pour Centre de Tri (caché par défaut) -->
+        <VBox spacing="15" alignment="CENTER" fx:id="centreTriLoginForm" visible="false" managed="false">
+            <TextField fx:id="centreNomCentre" promptText="Nom du centre" styleClass="input-field" />
+            <TextField fx:id="centreAdresse" promptText="Adresse complète" styleClass="input-field" />
+<!--            <Hyperlink fx:id="createCentreTriAccountLink" text="Enregistrer un centre de tri" styleClass="hyperlink" onAction="#handleCreateAccount" />-->
+            <Button fx:id="centreTriLoginButton" text="Connexion" styleClass="login-button" prefWidth="200" onAction="#handleCentreTriLogin" />
         </VBox>
 
         <Label fx:id="messageLabel" textFill="#d32f2f" />

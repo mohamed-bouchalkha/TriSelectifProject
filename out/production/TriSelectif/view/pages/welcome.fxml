@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.WelcomeController">
+    <VBox spacing="20" alignment="CENTER" maxWidth="400" maxHeight="300" styleClass="welcome-container">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <!-- Message de bienvenue -->
+        <Label fx:id="welcomeLabel" text="Hello !" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+
+        <Label text="Bienvenue sur l'application Tri Sélectif" style="-fx-font-size: 18px; -fx-text-fill: #4CAF50;" />
+    </VBox>
+
+    <stylesheets>
+        <URL value="@../css/connection.css" />
+    </stylesheets>
+</StackPane>
