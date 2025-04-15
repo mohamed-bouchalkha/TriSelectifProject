@@ -1,0 +1,71 @@
+/* view/css/connection.css */
+
+.root {
+    -fx-background-color: #f5f5f5;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.login-container {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 3);
+    -fx-background-radius: 8px;
+}
+.hyperlink {
+    -fx-text-fill: #4b96e1;
+    -fx-font-size: 13px;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #3a85d0;
+    -fx-underline: true;
+}
+.login-option {
+    -fx-background-color: #f9f9f9;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
+    -fx-cursor: hand;
+    -fx-min-width: 140px;
+}
+
+.login-option:hover {
+    -fx-background-color: #f0f0f0;
+}
+
+.login-option-selected {
+    -fx-background-color: #e8f5fe;
+    -fx-border-color: #4b96e1;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+.input-field {
+    -fx-background-color: #f5f5f5;
+    -fx-background-radius: 4px;
+    -fx-border-color: #e0e0e0;
+    -fx-border-radius: 4px;
+    -fx-padding: 10px;
+    -fx-font-size: 14px;
+}
+
+.input-field:focused {
+    -fx-border-color: #4b96e1;
+    -fx-background-color: white;
+}
+
+.login-button {
+    -fx-background-color: #4b96e1;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 4px;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #3a85d0;
+}
+
+.login-button:pressed {
+    -fx-background-color: #2a74c0;
+}

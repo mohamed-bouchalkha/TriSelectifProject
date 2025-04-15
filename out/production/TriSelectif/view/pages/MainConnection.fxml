@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Rectangle?>
+<?import java.net.URL?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="controller.ConnectionController">
+    <VBox spacing="20" alignment="CENTER" maxWidth="400" maxHeight="500" styleClass="login-container">
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <!-- En-tête -->
+        <Label text="Connexion à l'application" style="-fx-font-size: 22px; -fx-font-weight: bold;" />
+        <Label text="Choisissez votre type de compte" style="-fx-font-size: 14px; -fx-text-fill: #555555;" />
+
+        <!-- Conteneur des options de connexion -->
+        <HBox spacing="20" alignment="CENTER">
+            <!-- Option Utilisateur -->
+            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectUserOption">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <Label text="👤" style="-fx-font-size: 32px;" />
+                <Label text="Utilisateur" style="-fx-font-size: 16px;" />
+                <Label text="Accès standard" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
+                <Rectangle fx:id="userIndicator" width="50" height="3" fill="transparent" />
+            </VBox>
+
+            <!-- Option Administrateur -->
+            <VBox spacing="10" alignment="CENTER" styleClass="login-option" onMouseClicked="#selectAdminOption">
+                <padding>
+                    <Insets top="15" right="20" bottom="15" left="20"/>
+                </padding>
+                <Label text="🔑" style="-fx-font-size: 32px;" />
+                <Label text="Administrateur" style="-fx-font-size: 16px;" />
+                <Label text="Accès complet" style="-fx-font-size: 12px; -fx-text-fill: #777777;" />
+                <Rectangle fx:id="adminIndicator" width="50" height="3" fill="transparent" />
+            </VBox>
+        </HBox>
+
+        <!-- Formulaire de connexion -->
+        <VBox spacing="15" alignment="CENTER" fx:id="loginForm">
+            <TextField fx:id="usernameField" promptText="Nom d'utilisateur" styleClass="input-field" />
+            <PasswordField fx:id="passwordField" promptText="Mot de passe" styleClass="input-field" />
+
+            <Hyperlink fx:id="createAccountLink" text="Si vous n'avez pas un compte, créez un compte" styleClass="hyperlink" onAction="#handleCreateAccount" />
+            <Button fx:id="loginButton" text="Connexion" styleClass="login-button" prefWidth="200" onAction="#handleLogin" />
+        </VBox>
+
+        <Label fx:id="messageLabel" textFill="#d32f2f" />
+    </VBox>
+
+    <stylesheets>
+        <URL value="@../css/connection.css" />
+    </stylesheets>
+</StackPane>
