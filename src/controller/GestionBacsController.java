@@ -348,7 +348,7 @@ public class GestionBacsController {
             if (centre == null) {
                 showErrorMessage("Erreur: Centre de tri non trouvé pour ID " + centreId);
                 System.out.println("Centre non trouvé pour centreId: " + centreId);
-                return;
+                return; // Stop execution if centre is not found
             }
 
             Adresse adresse = new Adresse(
@@ -391,7 +391,6 @@ public class GestionBacsController {
             e.printStackTrace();
         }
     }
-
     @FXML
     public void handleModifierBac() {
         if (selectedBac == null) {
