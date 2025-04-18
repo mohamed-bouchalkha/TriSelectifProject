@@ -16,6 +16,13 @@ public class CentreTri {
     private static HashMap<Integer, CentreTri> mapCentre = new HashMap<Integer, CentreTri>();
     private static int compteCentre;
 
+
+    // Ajout de la méthode pour réinitialiser mapCentre
+    public static void clearMapCentre() {
+        mapCentre.clear();
+        compteCentre = 0;
+        System.out.println("CentreTri: mapCentre et compteCentre réinitialisés");
+    }
     public int getIdCentre() {
         return this.idCentre;
     }

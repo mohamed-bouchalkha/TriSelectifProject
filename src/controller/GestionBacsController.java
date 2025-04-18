@@ -54,7 +54,7 @@ public class GestionBacsController {
     @FXML private Button retourButton;
     @FXML private Button clearButton;
     @FXML private Button refreshButton;
-
+    @FXML private Button logoutButton;
     @FXML private Label messageLabel;
     @FXML private Label centreTitleLabel;
     @FXML private Label totalBacsLabel;
@@ -80,6 +80,31 @@ public class GestionBacsController {
         if (bacsList != null && bacDAO != null) {
             loadCentreInfo();
             loadBacs();
+        }
+    }
+    @FXML
+    public void handleLogout() {
+        try {
+            // Réinitialiser l'état de CentreTri
+            CentreTri.clearMapCentre();
+            System.out.println("GestionBacsController: Déconnexion - mapCentre réinitialisé");
+
+            // Charger la page de connexion
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/MainConnection.fxml"));
+            Parent loginPage = loader.load();
+
+            // Obtenir la fenêtre actuelle et définir la nouvelle scène
+            Scene scene = new Scene(loginPage);
+            Stage stage = (Stage) logoutButton.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Connexion");
+            stage.show();
+
+            System.out.println("GestionBacsController: Redirection vers la page de connexion réussie");
+        } catch (IOException e) {
+            showErrorMessage("Erreur lors de la déconnexion: " + e.getMessage());
+            System.err.println("GestionBacsController: Erreur lors de la déconnexion - " + e.getMessage());
+            e.printStackTrace();
         }
     }
     public void setCentreName(String centreName) {
@@ -387,48 +412,52 @@ public class GestionBacsController {
     @FXML
     public void handleAjouterBac() {
         try {
-            // Valider les champs du formulaire
             if (!validerChamps()) {
-                showErrorMessage("Veuillez remplir tous les champs correctement");
-                System.out.println("GestionBacsController: Validation des champs échouée");
                 return;
             }
 
-            // Puisque l'utilisateur est authentifié, on fait confiance au centreId
-            // mais on vérifie quand même que le CentreTri existe pour plus de robustesse
+            // Vérifier l'ID du centre avant toute opération
+            if (centreId <= 0) {
+                showErrorMessage("Erreur: ID du centre invalide (" + centreId + ")");
+                System.out.println("Erreur: centreId invalide dans handleAjouterBac: " + centreId);
+                return;
+            }
+
             CentreTri centre = centreTriDAO.find(centreId);
             if (centre == null) {
-                showErrorMessage("Erreur: Centre de tri non trouvé pour l'utilisateur authentifié (ID: " + centreId + ")");
-                System.out.println("GestionBacsController: Centre non trouvé pour centreId: " + centreId);
+                showErrorMessage("Erreur: Centre de tri non trouvé pour ID " + centreId);
+                System.out.println("Centre non trouvé pour centreId: " + centreId);
                 return;
             }
 
-            // Créer l'objet Adresse à partir des champs du formulaire
+            // Vérifier que l'ID du centre retourné correspond à celui attendu
+            if (centre.getIdCentre() != centreId) {
+                showErrorMessage("Erreur: Incohérence dans l'ID du centre (" + centre.getIdCentre() + " != " + centreId + ")");
+                System.out.println("Incohérence dans l'ID du centre: attendu " + centreId + ", trouvé " + centre.getIdCentre());
+                return;
+            }
+
             Adresse adresse = new Adresse(
-                    -1, // ID sera défini par la base de données
+                    -1,
                     Integer.parseInt(numeroField.getText()),
                     rueField.getText(),
                     Integer.parseInt(codePostalField.getText()),
                     villeField.getText()
             );
 
-            // Vérifier si l'adresse existe déjà, sinon la créer
             int adresseId = adresseDAO.findByAdresse(adresse);
             if (adresseId == -1) {
                 adresseId = adresseDAO.create(adresse);
                 if (adresseId == -1) {
                     showErrorMessage("Erreur lors de la création de l'adresse");
-                    System.out.println("GestionBacsController: Échec de la création de l'adresse");
                     return;
                 }
             }
 
-            // Créer le nouvel objet Bac
             UUID idBac = UUID.randomUUID();
             Couleur couleur = couleurCombo.getValue();
             if (couleur == null) {
                 showErrorMessage("Veuillez sélectionner une couleur valide");
-                System.out.println("GestionBacsController: Couleur non sélectionnée");
                 return;
             }
             int capacite = Integer.parseInt(capaciteField.getText());
@@ -437,22 +466,15 @@ public class GestionBacsController {
             bac.setContenu(contenu);
             bac.setAdresseBac(adresse);
 
-            // Enregistrer le bac dans la base de données en utilisant directement centreId
-            System.out.println("GestionBacsController: Ajout d'un bac avec centreId: " + centreId);
-            bacDAO.create(bac, centreId, adresseId);
+            System.out.println("Ajout d'un bac avec centreId: " + centre.getIdCentre());
+            bacDAO.create(bac, centre.getIdCentre(), adresseId);
 
-            // Rafraîchir la liste des bacs et réinitialiser le formulaire
             loadBacs();
             clearFormulaire();
             showSuccessMessage("Bac ajouté avec succès");
-            System.out.println("GestionBacsController: Bac ajouté avec succès - idBac: " + idBac);
-        } catch (NumberFormatException e) {
-            showErrorMessage("Erreur: Les champs numériques (numéro, capacité, contenu, code postal) doivent contenir des valeurs valides");
-            System.err.println("GestionBacsController: Erreur de format numérique dans handleAjouterBac: " + e.getMessage());
-            e.printStackTrace();
         } catch (Exception e) {
             showErrorMessage("Erreur lors de l'ajout du bac: " + e.getMessage());
-            System.err.println("GestionBacsController: Erreur dans handleAjouterBac: " + e.getMessage());
+            System.err.println("Erreur dans handleAjouterBac: " + e.getMessage());
             e.printStackTrace();
         }
     }

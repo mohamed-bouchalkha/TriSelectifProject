@@ -52,6 +52,11 @@
                         <Tooltip text="Actualiser la liste des bacs" />
                     </tooltip>
                 </Button>
+                <Button fx:id="logoutButton" text="Déconnexion" styleClass="toolbar-button" onAction="#handleLogout">
+                    <tooltip>
+                        <Tooltip text="Se déconnecter et revenir à la page de connexion" />
+                    </tooltip>
+                </Button>
             </HBox>
         </VBox>
     </top>
