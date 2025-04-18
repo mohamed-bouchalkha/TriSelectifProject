@@ -42,6 +42,12 @@ public class Bac {
 		return adresseBac;
 	}
 
+	public void setCouleurBac(Couleur couleur) {
+		if (couleur != null) {
+			this.couleurBac = couleur;
+		}
+	}
+
 	public void setCapacite(int capacite) {
 		if (capacite > 0) {
 			this.capacite = capacite;

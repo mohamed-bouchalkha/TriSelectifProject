@@ -21,9 +21,6 @@ import model.Couleur;
 
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,12 +57,21 @@ public class GestionBacsController {
 
     public void setCentreId(int centreId) {
         this.centreId = centreId;
+        // Recharger les bacs après avoir défini centreId
+        if (bacsList != null && bacDAO != null) {
+            loadBacs();
+        }
     }
 
     @FXML
     public void initialize() {
         // Initialiser la connexion et les DAO
-        connection = Main.conn;
+        connection = Main.conn; // Remplacer Main.getConnection() par Main.conn
+        if (connection == null) {
+            messageLabel.setText("Erreur: Connexion à la base de données non disponible");
+            return;
+        }
+
         bacDAO = new BacDAO(connection);
         adresseDAO = new AdresseDAO(connection);
         centreTriDAO = new CentreTriDAO(connection);
@@ -75,12 +81,14 @@ public class GestionBacsController {
         couleurColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCouleurBac().name()));
         capaciteColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getCapacite()).asObject());
         contenuColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getContenu()).asObject());
-        adresseColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getAdresseBac().toString()));
+        adresseColumn.setCellValueFactory(cellData -> {
+            Adresse adresse = cellData.getValue().getAdresseBac();
+            return new SimpleStringProperty(adresse != null ? adresse.toString() : "Non définie");
+        });
 
         // Initialiser la liste des bacs
         bacsList = FXCollections.observableArrayList();
         bacsTable.setItems(bacsList);
-        loadBacs();
 
         // Configurer le ComboBox des couleurs
         couleurCombo.setItems(FXCollections.observableArrayList("vert", "jaune", "bleu", "gris"));
@@ -99,13 +107,37 @@ public class GestionBacsController {
                 supprimerButton.setDisable(true);
             }
         });
+
+        // Charger les bacs si centreId est déjà défini
+        if (centreId > 0) {
+            loadBacs();
+        }
     }
 
     // Charger la liste des bacs depuis la base de données
     private void loadBacs() {
+        if (centreId <= 0) {
+            System.out.println("loadBacs: centreId non défini (" + centreId + ")");
+            messageLabel.setText("Erreur: ID du centre non défini");
+            return;
+        }
+
         bacsList.clear();
-        List<Bac> bacs = bacDAO.findAllByCentre(centreId); // Utiliser l'ID du centre connecté
-        bacsList.addAll(bacs);
+        try {
+            List<Bac> bacs = bacDAO.findAllByCentre(centreId);
+            if (bacs.isEmpty()) {
+                System.out.println("Aucun bac trouvé pour centreId: " + centreId);
+                messageLabel.setText("Aucun bac disponible pour ce centre");
+            } else {
+                System.out.println("Bacs trouvés pour centreId " + centreId + ": " + bacs.size());
+                bacsList.addAll(bacs);
+                messageLabel.setText("Bacs chargés avec succès");
+            }
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des bacs: " + e.getMessage());
+            e.printStackTrace();
+            messageLabel.setText("Erreur lors du chargement des bacs");
+        }
     }
 
     @FXML
@@ -146,16 +178,17 @@ public class GestionBacsController {
                 return;
             }
             Bac bac = new Bac(idBac, centre, couleur, capacite);
+            bac.setAdresseBac(adresse); // Définir l'adresse dans l'objet Bac
 
             // Insérer le bac dans la base de données
-            bacDAO.create(bac, centre.getIdCentre(), adresseId); // Ligne 151
+            bacDAO.create(bac, centre.getIdCentre(), adresseId);
 
             // Rafraîchir la liste
             loadBacs();
             clearFormulaire();
             messageLabel.setText("Bac ajouté avec succès");
         } catch (Exception e) {
-            messageLabel.setText("Erreur lors de l'ajout du bac");
+            messageLabel.setText("Erreur lors de l'ajout du bac: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -183,6 +216,7 @@ public class GestionBacsController {
 
             // Mettre à jour le bac
             selectedBac.setCapacite(Integer.parseInt(capaciteField.getText()));
+            selectedBac.setCouleurBac(Couleur.valueOf(couleurCombo.getValue()));
             bacDAO.update(selectedBac, adresse.getId());
 
             // Rafraîchir la liste
@@ -206,9 +240,6 @@ public class GestionBacsController {
             // Supprimer le bac
             bacDAO.delete(selectedBac.getIdBac());
 
-            // Supprimer l'adresse (si non utilisée par d'autres entités)
-            // adresseDAO.delete(selectedBac.getAdresseBac().getId()); // Décommentez si nécessaire
-
             // Rafraîchir la liste
             loadBacs();
             clearFormulaire();
@@ -228,7 +259,7 @@ public class GestionBacsController {
 
             // Configurer le contrôleur du tableau de bord
             WelcomeController welcomeController = loader.getController();
-            welcomeController.setUserInfo("Centre de Tri", "Nom du centre", centreId); // Passer l'ID
+            welcomeController.setUserInfo("Centre de Tri", "Nom du centre", centreId);
 
             // Changer la scène
             Scene scene = new Scene(welcomePage);
@@ -275,14 +306,22 @@ public class GestionBacsController {
     private void remplirFormulaire(Bac bac) {
         couleurCombo.setValue(bac.getCouleurBac().name());
         capaciteField.setText(String.valueOf(bac.getCapacite()));
-        numeroField.setText(String.valueOf(bac.getAdresseBac().getNum()));
-        rueField.setText(bac.getAdresseBac().getNomRue());
-        codePostalField.setText(String.valueOf(bac.getAdresseBac().getCodeP()));
-        villeField.setText(bac.getAdresseBac().getVille());
+        Adresse adresse = bac.getAdresseBac();
+        if (adresse != null) {
+            numeroField.setText(String.valueOf(adresse.getNum()));
+            rueField.setText(adresse.getNomRue());
+            codePostalField.setText(String.valueOf(adresse.getCodeP()));
+            villeField.setText(adresse.getVille());
+        } else {
+            numeroField.clear();
+            rueField.clear();
+            codePostalField.clear();
+            villeField.clear();
+        }
     }
 
     // Vider le formulaire
-    public void clearFormulaire() {
+    private void clearFormulaire() {
         couleurCombo.setValue(null);
         capaciteField.clear();
         numeroField.clear();

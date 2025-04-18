@@ -143,6 +143,7 @@ public class ConnectionController {
         }
     }
 
+
     @FXML
     public void handleCentreTriLogin(ActionEvent event) {
         String nomCentre = centreNomCentre.getText().trim();
@@ -154,20 +155,17 @@ public class ConnectionController {
         }
 
         try {
-            // Vérifier si la connexion est valide
             if (connection == null) {
                 messageLabel.setText("Erreur: Connexion à la base de données non disponible");
                 return;
             }
 
-            // Rechercher le centre de tri par son nom et adresse
             String sql = "SELECT ct.idCentre, ct.nomCentre, a.id AS adresse_id " +
                     "FROM CentreTri ct " +
                     "JOIN Adresse a ON ct.adresse_id = a.id " +
                     "WHERE ct.nomCentre = ? AND " +
                     "(CONCAT(a.numero, ' ', a.nomRue, ', ', a.codePostal, ' ', a.ville) = ? OR " +
                     "a.nomRue = ?)";
-
             PreparedStatement stmt = connection.prepareStatement(sql);
             stmt.setString(1, nomCentre);
             stmt.setString(2, adresse);
@@ -176,11 +174,8 @@ public class ConnectionController {
 
             if (rs.next()) {
                 int idCentre = rs.getInt("idCentre");
-
-                // Authentification réussie - Redirection vers la page d'accueil
                 redirectToWelcomePage("Centre de Tri", nomCentre, idCentre);
             } else {
-                // Centre de tri non trouvé
                 messageLabel.setText("Centre de tri non trouvé ou adresse incorrecte");
             }
 
@@ -196,23 +191,18 @@ public class ConnectionController {
     }
 
     private void redirectToWelcomePage(String accountType, String name, int centreId) throws IOException {
-        // Charger la page d'accueil
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/welcome.fxml"));
         Parent welcomePage = loader.load();
-
-        // Passer les informations au contrôleur
         WelcomeController welcomeController = loader.getController();
         welcomeController.setUserInfo(accountType, name, centreId);
-
-        // Créer une nouvelle scène avec la page d'accueil
         Scene scene = new Scene(welcomePage);
-
-        // Obtenir la fenêtre actuelle et définir la nouvelle scène
-        Stage stage = (Stage) (centreNomCentre != null ? centreNomCentre.getScene().getWindow() : menageNomCompte.getScene().getWindow());
+        Stage stage = (Stage) centreNomCentre.getScene().getWindow();
         stage.setScene(scene);
         stage.setTitle("Bienvenue - " + accountType);
         stage.show();
     }
+
+
 
     @FXML
     public void handleCreateAccount(ActionEvent event) {

@@ -67,6 +67,10 @@ public class BacDAO {
                         rs.getString("ville")
                 );
                 CentreTri centre = new CentreTriDAO(conn).find(rs.getInt("centre_id"));
+                if (centre == null) {
+                    System.out.println("Centre non trouvé pour centre_id: " + rs.getInt("centre_id"));
+                    continue;
+                }
                 Bac bac = new Bac(
                         (UUID) rs.getObject("idBac"),
                         centre,
@@ -83,7 +87,6 @@ public class BacDAO {
         }
         return bacs;
     }
-
     /**
      * Met à jour un bac dans la base de données.
      * @param bac Le bac à mettre à jour
