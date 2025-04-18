@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.GestionBacsController">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" styleClass="header-container">
+            <Label text="Gestion des Bacs" styleClass="header-title"/>
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="25.0">
+            <padding>
+                <Insets top="20.0" right="30.0" bottom="20.0" left="30.0" />
+            </padding>
+
+            <!-- Table des bacs -->
+            <TableView fx:id="bacsTable" prefHeight="300.0" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="idColumn" text="ID Bac" prefWidth="150.0" />
+                    <TableColumn fx:id="couleurColumn" text="Couleur" prefWidth="100.0" />
+                    <TableColumn fx:id="capaciteColumn" text="Capacité (g)" prefWidth="100.0" />
+                    <TableColumn fx:id="contenuColumn" text="Contenu (g)" prefWidth="100.0" />
+                    <TableColumn fx:id="adresseColumn" text="Adresse" prefWidth="200.0" />
+                </columns>
+                <placeholder>
+                    <Label text="Aucun bac disponible" />
+                </placeholder>
+            </TableView>
+
+            <!-- Formulaire pour ajouter/modifier un bac -->
+            <VBox styleClass="form-container">
+                <Label text="Gestion des Bacs" styleClass="form-title" />
+
+                <HBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+                    <!-- Colonne gauche -->
+                    <VBox spacing="15" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Couleur :" styleClass="form-label" />
+                            <ComboBox fx:id="couleurCombo" prefWidth="250.0" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Capacité (g) :" styleClass="form-label" />
+                            <TextField fx:id="capaciteField" promptText="Entrez la capacité" styleClass="input-field" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Numéro :" styleClass="form-label" />
+                            <TextField fx:id="numeroField" promptText="Numéro" styleClass="input-field" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- Colonne droite -->
+                    <VBox spacing="15" HBox.hgrow="ALWAYS">
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Rue :" styleClass="form-label" />
+                            <TextField fx:id="rueField" promptText="Nom de la rue" styleClass="input-field" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Code Postal :" styleClass="form-label" />
+                            <TextField fx:id="codePostalField" promptText="Code postal" styleClass="input-field" />
+                        </HBox>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Ville :" styleClass="form-label" />
+                            <TextField fx:id="villeField" promptText="Ville" styleClass="input-field" />
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Message d'erreur ou de succès -->
+                <Label fx:id="messageLabel" styleClass="message-label, error-message" wrapText="true" />
+
+                <!-- Boutons d'action -->
+                <HBox spacing="15" alignment="CENTER" styleClass="action-buttons-container">
+                    <Button fx:id="ajouterButton" text="Ajouter" styleClass="action-button" onAction="#handleAjouterBac" />
+                    <Button fx:id="modifierButton" text="Modifier" styleClass="action-button" onAction="#handleModifierBac" disable="true" />
+                    <Button fx:id="supprimerButton" text="Supprimer" styleClass="action-button, delete-button" onAction="#handleSupprimerBac" disable="true" />
+                    <Button fx:id="clearButton" text="Effacer" styleClass="action-button, return-button" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="15" styleClass="footer">
+            <Button fx:id="retourButton" text="Retour au Tableau de Bord" styleClass="action-button, return-button" onAction="#handleRetour" />
+            <Label text="© 2025 - Application de Tri Sélectif" styleClass="copyright-text" HBox.hgrow="ALWAYS" />
+        </HBox>
+    </bottom>
+
+    <stylesheets>
+        <URL value="@../css/gestionBacs.css" />
+    </stylesheets>
+</BorderPane>

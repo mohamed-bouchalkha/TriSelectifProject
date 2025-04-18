@@ -21,10 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import dao.CentreTriDAO;
-import dao.AdresseDAO;
-import model.CentreTri;
-import model.Adresse;
-import main.Main; // Import de la classe Main pour accéder à la connexion
+import main.Main;
 
 public class ConnectionController {
 
@@ -129,7 +126,7 @@ public class ConnectionController {
 
             if (rs.next()) {
                 // Authentification réussie
-                redirectToWelcomePage("Ménage", nomCompte);
+                redirectToWelcomePage("Ménage", nomCompte, -1); // Pas d'ID pour ménage
             } else {
                 // Authentification échouée
                 messageLabel.setText("Nom de compte ou mot de passe incorrect");
@@ -163,7 +160,7 @@ public class ConnectionController {
                 return;
             }
 
-            // Rechercher le centre de tri par son nom
+            // Rechercher le centre de tri par son nom et adresse
             String sql = "SELECT ct.idCentre, ct.nomCentre, a.id AS adresse_id " +
                     "FROM CentreTri ct " +
                     "JOIN Adresse a ON ct.adresse_id = a.id " +
@@ -180,12 +177,8 @@ public class ConnectionController {
             if (rs.next()) {
                 int idCentre = rs.getInt("idCentre");
 
-                // Authentification réussie - Charger le CentreTri depuis la DAO
-                CentreTriDAO centreTriDAO = new CentreTriDAO(connection);
-                CentreTri centreTri = centreTriDAO.find(idCentre);
-
-                // Redirection vers la page d'accueil
-                redirectToWelcomePage("Centre de Tri", nomCentre);
+                // Authentification réussie - Redirection vers la page d'accueil
+                redirectToWelcomePage("Centre de Tri", nomCentre, idCentre);
             } else {
                 // Centre de tri non trouvé
                 messageLabel.setText("Centre de tri non trouvé ou adresse incorrecte");
@@ -202,20 +195,20 @@ public class ConnectionController {
         }
     }
 
-    private void redirectToWelcomePage(String accountType, String name) throws IOException {
-        // Créer une page d'accueil simple avec "Hello [name]"
+    private void redirectToWelcomePage(String accountType, String name, int centreId) throws IOException {
+        // Charger la page d'accueil
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/welcome.fxml"));
         Parent welcomePage = loader.load();
 
-        // Si vous avez un contrôleur pour la page d'accueil, vous pouvez lui passer les informations
+        // Passer les informations au contrôleur
         WelcomeController welcomeController = loader.getController();
-        welcomeController.setUserInfo(accountType, name);
+        welcomeController.setUserInfo(accountType, name, centreId);
 
         // Créer une nouvelle scène avec la page d'accueil
         Scene scene = new Scene(welcomePage);
 
         // Obtenir la fenêtre actuelle et définir la nouvelle scène
-        Stage stage = (Stage) centreNomCentre.getScene().getWindow();
+        Stage stage = (Stage) (centreNomCentre != null ? centreNomCentre.getScene().getWindow() : menageNomCompte.getScene().getWindow());
         stage.setScene(scene);
         stage.setTitle("Bienvenue - " + accountType);
         stage.show();
@@ -239,7 +232,6 @@ public class ConnectionController {
             Stage stage = (Stage) ((Hyperlink) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException e) {
             messageLabel.setText("Erreur lors du chargement de la page d'inscription");
             e.printStackTrace();

@@ -1,4 +1,5 @@
 package model;
+
 import java.time.*;
 import java.util.*;
 
@@ -11,10 +12,10 @@ public class CentreTri {
     private HashMap<UUID, Boolean> mapNotifPleine;
     private HashMap<UUID, Depot> historiqueDepot;
     private HashMap<UUID, ContratPartenariat> mapPartenaire;
-    
-	private static HashMap<Integer, CentreTri> mapCentre = new HashMap<Integer, CentreTri>();
-	private static int compteCentre;
-    
+
+    private static HashMap<Integer, CentreTri> mapCentre = new HashMap<Integer, CentreTri>();
+    private static int compteCentre;
+
     public int getIdCentre() {
         return this.idCentre;
     }
@@ -58,21 +59,21 @@ public class CentreTri {
     public ContratPartenariat getPartenaire(UUID idPartenaire) {
         return this.mapPartenaire.get(idPartenaire);
     }
-    
-    public static HashMap<Integer, CentreTri> getMapCentre(){
-    	return mapCentre;
+
+    public static HashMap<Integer, CentreTri> getMapCentre() {
+        return mapCentre;
     }
-    
+
     public static int getCompteCentre() {
-    	return compteCentre;
+        return compteCentre;
     }
-    
+
     public void setIdCentre(int nId) {
-    	if (nId >= 0 && !mapCentre.containsKey(nId)) {
-    		this.idCentre = nId;
-    	}
+        if (nId >= 0 && !mapCentre.containsKey(nId)) {
+            this.idCentre = nId;
+        }
     }
-    
+
     public void setNomC(String nNomC) {
         this.nomCentre = nNomC;
     }
@@ -82,7 +83,7 @@ public class CentreTri {
         while (mapBac.containsKey(id)) {
             id = UUID.randomUUID();
         }
-        
+
         Bac p = new Bac(id, this, col, capacite);
         mapBac.put(id, p);
         mapNotifPleine.put(id, false);
@@ -94,14 +95,14 @@ public class CentreTri {
     }
 
     public void placerBac(UUID idBac, Adresse a) {
-    	Bac p = mapBac.get(idBac);
+        Bac p = mapBac.get(idBac);
         if (p != null) {
             p.setAdresseBac(a);
         }
     }
 
     public void retirerBac(UUID idBac) {
-    	Bac p = mapBac.get(idBac);
+        Bac p = mapBac.get(idBac);
         if (p != null) {
             p.setAdresseBac(this.adresseCentre);
             p.getAdresseBac().setNum(0);
@@ -125,7 +126,7 @@ public class CentreTri {
     }
 
     public void majBac(UUID idBac) {
-    	Bac p = mapBac.get(idBac);
+        Bac p = mapBac.get(idBac);
         if (p != null) {
             boolean pleine = p.getContenu() >= 0.8 * p.getCapacite();
             mapNotifPleine.put(idBac, pleine);
@@ -133,7 +134,7 @@ public class CentreTri {
     }
 
     public ArrayList<Depot> getRes(Couleur col, Type t, LocalTime heureD, LocalTime heureF, LocalDate dateD, LocalDate dateF,
-    Adresse a, ResCat cat) {
+                                   Adresse a, ResCat cat) {
         ArrayList<Depot> resultat = new ArrayList<Depot>();
         boolean couleurOK;
         boolean typeOK;
@@ -145,8 +146,7 @@ public class CentreTri {
             couleurOK = (col == Couleur.toutCol || d.getCouleurDepot().equals(col));
             typeOK = (t == Type.toutType || d.getTypeDepot().equals(t));
             heureOK = (!d.getHoraire().isBefore(heureD) && !d.getHoraire().isAfter(heureF)) ||
-            	((!d.getHoraire().isBefore(heureD) || !d.getHoraire().isAfter(heureF)) && heureD.isAfter(heureF))
-            ;
+                    ((!d.getHoraire().isBefore(heureD) || !d.getHoraire().isAfter(heureF)) && heureD.isAfter(heureF));
             dateOK = (dateD.isAfter(dateF) || (!d.getDate().isBefore(dateD) && !d.getDate().isAfter(dateF)));
             rueOK = (a == null || d.getAdresseDepot().rueEquals(a));
             catOK = (cat == ResCat.total || d.getCorrect().equals(cat));
@@ -159,10 +159,10 @@ public class CentreTri {
 
     public void collecter() {
         for (Bac b : mapBac.values()) {
-        	if (b.getAdresseBac().getNum() <= 0) {
-	            b.vider();
-	            mapNotifPleine.put(b.getIdBac(), false);
-        	}
+            if (b.getAdresseBac().getNum() <= 0) {
+                b.vider();
+                mapNotifPleine.put(b.getIdBac(), false);
+            }
         }
     }
 
@@ -171,30 +171,29 @@ public class CentreTri {
             System.out.println("Identifiant déjà existant");
             return;
         }
-    	Menage m = new Menage(nCompte, nMDP, nAdresse);
+        Menage m = new Menage(nCompte, nMDP, nAdresse);
         Menage.getMapMenage().put(m.getNom(), m);
     }
-    
-	public String toString() {
-		return "CentreTri {\n\tId centre : " + this.idCentre + "\n\tNom centre : " + this.nomCentre
-			+ "\n\tAdresse centre : " + this.adresseCentre + "\n}\n"
-		;
-	}
 
-	public CentreTri(String nomCentre, Adresse adresseCentre) {
-    	if (nomCentre != "" && adresseCentre !=  null) {
-    		while (mapCentre.containsKey(compteCentre)) {
-    			compteCentre++;
-    		}
-	        this.idCentre = compteCentre;
-	        compteCentre++;
-	        this.nomCentre = nomCentre;
-	        this.adresseCentre = adresseCentre;
-	        this.mapBac = new HashMap<UUID, Bac>();
-	        this.mapNotifPleine = new HashMap<UUID, Boolean>();
-	        this.historiqueDepot = new HashMap<UUID, Depot>();
-	        this.mapPartenaire = new HashMap<UUID, ContratPartenariat>();
-	        mapCentre.put(this.idCentre, this);
-    	}
+    public String toString() {
+        return "CentreTri {\n\tId centre : " + this.idCentre + "\n\tNom centre : " + this.nomCentre
+                + "\n\tAdresse centre : " + this.adresseCentre + "\n}\n";
+    }
+
+    public CentreTri(String nomCentre, Adresse adresseCentre) {
+        if (nomCentre != null && !nomCentre.isEmpty() && adresseCentre != null) {
+            while (mapCentre.containsKey(compteCentre)) {
+                compteCentre++;
+            }
+            this.idCentre = compteCentre;
+            compteCentre++;
+            this.nomCentre = nomCentre;
+            this.adresseCentre = adresseCentre;
+            this.mapBac = new HashMap<UUID, Bac>();
+            this.mapNotifPleine = new HashMap<UUID, Boolean>();
+            this.historiqueDepot = new HashMap<UUID, Depot>();
+            this.mapPartenaire = new HashMap<UUID, ContratPartenariat>();
+            mapCentre.put(this.idCentre, this);
+        }
     }
 }

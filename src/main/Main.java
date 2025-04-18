@@ -15,7 +15,6 @@
     
         @Override
         public void start(Stage primaryStage) throws Exception {
-            // Connexion PostgreSQL (à faire ici pour la rendre accessible au contrôleur si besoin)
             String url = "jdbc:postgresql://localhost:5432/tri_selectif";
             String user = "postgres";
             String password = "admin123";
