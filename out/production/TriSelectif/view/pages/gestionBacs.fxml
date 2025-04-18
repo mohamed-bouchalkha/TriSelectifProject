@@ -186,7 +186,7 @@
                 <!-- TableView des bacs -->
                 <VBox styleClass="table-container" VBox.vgrow="ALWAYS">
                     <Label text="Liste des bacs" styleClass="section-title" />
-                    <TableView fx:id="bacsTable" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="bacsTable" VBox.vgrow="ALWAYS" prefHeight="400">
                         <columns>
                             <TableColumn fx:id="idColumn" text="ID Bac" prefWidth="150.0" />
                             <TableColumn fx:id="couleurColumn" text="Couleur" prefWidth="100.0" />

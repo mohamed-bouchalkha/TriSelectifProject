@@ -76,25 +76,25 @@ public class GestionBacsController {
 
     public void setCentreId(int centreId) {
         this.centreId = centreId;
-        System.out.println("setCentreId: centreId défini à " + centreId);
+        System.out.println("GestionBacsController: setCentreId - centreId défini à " + centreId);
         if (bacsList != null && bacDAO != null) {
             loadCentreInfo();
             loadBacs();
         }
     }
-
     public void setCentreName(String centreName) {
         this.centreName = centreName;
+        System.out.println("GestionBacsController: setCentreName - centreName défini à " + centreName);
         if (centreTitleLabel != null) {
             centreTitleLabel.setText(centreName);
         }
     }
-
     @FXML
     public void initialize() {
         connection = Main.conn;
         if (connection == null) {
             showErrorMessage("Erreur: Connexion à la base de données non disponible");
+            ajouterButton.setDisable(true);
             return;
         }
 
@@ -140,12 +140,10 @@ public class GestionBacsController {
             }
         });
 
-        // Formatage des colonnes numériques
         capaciteColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
         contenuColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
         tauxRemplissageColumn.setStyle("-fx-alignment: CENTER-RIGHT;");
 
-        // Ajustement des largeurs des colonnes pour un meilleur affichage
         idColumn.setPrefWidth(150.0);
         couleurColumn.setPrefWidth(100.0);
         capaciteColumn.setPrefWidth(110.0);
@@ -156,7 +154,6 @@ public class GestionBacsController {
         capaciteColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getCapacite()).asObject());
         contenuColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getContenu()).asObject());
 
-        // Ajout de la colonne pour le taux de remplissage
         tauxRemplissageColumn.setCellValueFactory(cellData -> {
             int capacite = cellData.getValue().getCapacite();
             int contenu = cellData.getValue().getContenu();
@@ -173,15 +170,14 @@ public class GestionBacsController {
                 } else {
                     setText(decimalFormat.format(taux) + "%");
 
-                    // Changement de couleur selon le taux de remplissage
                     if (taux >= 90) {
-                        setStyle("-fx-text-fill: #D32F2F;"); // Rouge pour taux critique
+                        setStyle("-fx-text-fill: #D32F2F;");
                     } else if (taux >= 75) {
-                        setStyle("-fx-text-fill: #FF8F00;"); // Orange pour taux élevé
+                        setStyle("-fx-text-fill: #FF8F00;");
                     } else if (taux >= 50) {
-                        setStyle("-fx-text-fill: #2E7D32;"); // Vert pour taux normal
+                        setStyle("-fx-text-fill: #2E7D32;");
                     } else {
-                        setStyle("-fx-text-fill: #1565C0;"); // Bleu pour taux faible
+                        setStyle("-fx-text-fill: #1565C0;");
                     }
                 }
             }
@@ -195,7 +191,6 @@ public class GestionBacsController {
         bacsList = FXCollections.observableArrayList();
         bacsTable.setItems(bacsList);
 
-        // Configuration des valeurs du ComboBox de couleur
         couleurCombo.setItems(FXCollections.observableArrayList(Couleur.values()));
         couleurCombo.setConverter(new javafx.util.StringConverter<Couleur>() {
             @Override
@@ -213,7 +208,6 @@ public class GestionBacsController {
             }
         });
 
-        // Écouteur de sélection pour la table des bacs
         bacsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 selectedBac = newSelection;
@@ -230,16 +224,69 @@ public class GestionBacsController {
             }
         });
 
-        // Écouteurs pour validation en temps réel
         setupTextFieldValidation(capaciteField, "[0-9]*", "Capacité invalide");
         setupTextFieldValidation(contenuField, "[0-9]*", "Contenu invalide");
         setupTextFieldValidation(numeroField, "[0-9]*", "Numéro invalide");
         setupTextFieldValidation(codePostalField, "[0-9]{0,5}", "Code postal invalide (5 chiffres)");
+        Platform.runLater(() -> {
+            if (bacsTable.getScene() != null && bacsTable.getScene().getWindow() != null) {
+                bacsTable.prefHeightProperty().bind(bacsTable.getScene().getWindow().heightProperty().multiply(0.4));
+            }
+        });
 
-        // Initialiser les statistiques
         if (centreId > 0) {
             loadCentreInfo();
             loadBacs();
+            // Vérifier si le centre existe pour activer/désactiver les actions
+            CentreTri centre = centreTriDAO.find(centreId);
+            if (centre == null) {
+                ajouterButton.setDisable(true);
+                modifierButton.setDisable(true);
+                supprimerButton.setDisable(true);
+                showErrorMessage("Centre de tri non trouvé (ID: " + centreId + "). Ajout et modification désactivés.");
+            }
+        } else {
+            ajouterButton.setDisable(true);
+            showErrorMessage("ID du centre non défini. Ajout désactivé.");
+        }
+    }
+
+    private void loadBacs() {
+        if (centreId <= 0) {
+            System.out.println("loadBacs: centreId non défini (" + centreId + ")");
+            showErrorMessage("Erreur: ID du centre non défini");
+            ajouterButton.setDisable(true);
+            return;
+        }
+
+        bacsList.clear();
+        try {
+            CentreTri centre = centreTriDAO.find(centreId);
+            if (centre == null) {
+                System.out.println("loadBacs: Centre non trouvé pour centreId: " + centreId);
+                showErrorMessage("Erreur: Centre de tri non trouvé (ID: " + centreId + ")");
+                ajouterButton.setDisable(true);
+                modifierButton.setDisable(true);
+                supprimerButton.setDisable(true);
+                return;
+            }
+
+            List<Bac> bacs = bacDAO.findAllByCentre(centreId);
+            if (bacs.isEmpty()) {
+                System.out.println("Aucun bac trouvé pour centreId: " + centreId);
+                showInfoMessage("Aucun bac disponible pour ce centre");
+            } else {
+                System.out.println("Bacs trouvés pour centreId " + centreId + ": " + bacs.size());
+                bacsList.addAll(bacs);
+                showSuccessMessage("Bacs chargés avec succès");
+                updateStatistics();
+            }
+            ajouterButton.setDisable(false); // Réactiver si le centre existe
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des bacs: " + e.getMessage());
+            e.printStackTrace();
+            showErrorMessage("Erreur lors du chargement des bacs: " + e.getMessage());
+            ajouterButton.setDisable(true);
         }
     }
 
@@ -270,31 +317,31 @@ public class GestionBacsController {
         }
     }
 
-    private void loadBacs() {
-        if (centreId <= 0) {
-            System.out.println("loadBacs: centreId non défini (" + centreId + ")");
-            showErrorMessage("Erreur: ID du centre non défini");
-            return;
-        }
-
-        bacsList.clear();
-        try {
-            List<Bac> bacs = bacDAO.findAllByCentre(centreId);
-            if (bacs.isEmpty()) {
-                System.out.println("Aucun bac trouvé pour centreId: " + centreId);
-                showInfoMessage("Aucun bac disponible pour ce centre");
-            } else {
-                System.out.println("Bacs trouvés pour centreId " + centreId + ": " + bacs.size());
-                bacsList.addAll(bacs);
-                showSuccessMessage("Bacs chargés avec succès");
-                updateStatistics();
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors du chargement des bacs: " + e.getMessage());
-            e.printStackTrace();
-            showErrorMessage("Erreur lors du chargement des bacs: " + e.getMessage());
-        }
-    }
+//    private void loadBacs() {
+//        if (centreId <= 0) {
+//            System.out.println("loadBacs: centreId non défini (" + centreId + ")");
+//            showErrorMessage("Erreur: ID du centre non défini");
+//            return;
+//        }
+//
+//        bacsList.clear();
+//        try {
+//            List<Bac> bacs = bacDAO.findAllByCentre(centreId);
+//            if (bacs.isEmpty()) {
+//                System.out.println("Aucun bac trouvé pour centreId: " + centreId);
+//                showInfoMessage("Aucun bac disponible pour ce centre");
+//            } else {
+//                System.out.println("Bacs trouvés pour centreId " + centreId + ": " + bacs.size());
+//                bacsList.addAll(bacs);
+//                showSuccessMessage("Bacs chargés avec succès");
+//                updateStatistics();
+//            }
+//        } catch (Exception e) {
+//            System.err.println("Erreur lors du chargement des bacs: " + e.getMessage());
+//            e.printStackTrace();
+//            showErrorMessage("Erreur lors du chargement des bacs: " + e.getMessage());
+//        }
+//    }
 
     private void updateStatistics() {
         int totalBacs = bacsList.size();
@@ -340,38 +387,48 @@ public class GestionBacsController {
     @FXML
     public void handleAjouterBac() {
         try {
+            // Valider les champs du formulaire
             if (!validerChamps()) {
+                showErrorMessage("Veuillez remplir tous les champs correctement");
+                System.out.println("GestionBacsController: Validation des champs échouée");
                 return;
             }
 
+            // Puisque l'utilisateur est authentifié, on fait confiance au centreId
+            // mais on vérifie quand même que le CentreTri existe pour plus de robustesse
             CentreTri centre = centreTriDAO.find(centreId);
             if (centre == null) {
-                showErrorMessage("Erreur: Centre de tri non trouvé pour ID " + centreId);
-                System.out.println("Centre non trouvé pour centreId: " + centreId);
-                return; // Stop execution if centre is not found
+                showErrorMessage("Erreur: Centre de tri non trouvé pour l'utilisateur authentifié (ID: " + centreId + ")");
+                System.out.println("GestionBacsController: Centre non trouvé pour centreId: " + centreId);
+                return;
             }
 
+            // Créer l'objet Adresse à partir des champs du formulaire
             Adresse adresse = new Adresse(
-                    -1,
+                    -1, // ID sera défini par la base de données
                     Integer.parseInt(numeroField.getText()),
                     rueField.getText(),
                     Integer.parseInt(codePostalField.getText()),
                     villeField.getText()
             );
 
+            // Vérifier si l'adresse existe déjà, sinon la créer
             int adresseId = adresseDAO.findByAdresse(adresse);
             if (adresseId == -1) {
                 adresseId = adresseDAO.create(adresse);
                 if (adresseId == -1) {
                     showErrorMessage("Erreur lors de la création de l'adresse");
+                    System.out.println("GestionBacsController: Échec de la création de l'adresse");
                     return;
                 }
             }
 
+            // Créer le nouvel objet Bac
             UUID idBac = UUID.randomUUID();
             Couleur couleur = couleurCombo.getValue();
             if (couleur == null) {
                 showErrorMessage("Veuillez sélectionner une couleur valide");
+                System.out.println("GestionBacsController: Couleur non sélectionnée");
                 return;
             }
             int capacite = Integer.parseInt(capaciteField.getText());
@@ -380,14 +437,22 @@ public class GestionBacsController {
             bac.setContenu(contenu);
             bac.setAdresseBac(adresse);
 
-            bacDAO.create(bac, centre.getIdCentre(), adresseId);
+            // Enregistrer le bac dans la base de données en utilisant directement centreId
+            System.out.println("GestionBacsController: Ajout d'un bac avec centreId: " + centreId);
+            bacDAO.create(bac, centreId, adresseId);
 
+            // Rafraîchir la liste des bacs et réinitialiser le formulaire
             loadBacs();
             clearFormulaire();
             showSuccessMessage("Bac ajouté avec succès");
+            System.out.println("GestionBacsController: Bac ajouté avec succès - idBac: " + idBac);
+        } catch (NumberFormatException e) {
+            showErrorMessage("Erreur: Les champs numériques (numéro, capacité, contenu, code postal) doivent contenir des valeurs valides");
+            System.err.println("GestionBacsController: Erreur de format numérique dans handleAjouterBac: " + e.getMessage());
+            e.printStackTrace();
         } catch (Exception e) {
             showErrorMessage("Erreur lors de l'ajout du bac: " + e.getMessage());
-            System.err.println("Erreur dans handleAjouterBac: " + e.getMessage());
+            System.err.println("GestionBacsController: Erreur dans handleAjouterBac: " + e.getMessage());
             e.printStackTrace();
         }
     }

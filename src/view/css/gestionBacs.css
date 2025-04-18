@@ -116,15 +116,27 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 1);
 }
 
-/* Amélioration de la table */
+/* Amélioration de la table et du défilement */
 .table-view {
-    -fx-background-color: white;
-    -fx-border-color: -color-border;
-    -fx-border-width: 1px;
-    -fx-border-radius: 3;
-    -fx-background-radius: 3;
+    -fx-min-height: 300px;
+    -fx-pref-height: 400px;
 }
 
+.table-view .virtual-flow {
+    -fx-background-color: white;
+}
+
+.table-view .scroll-bar:vertical {
+    -fx-background-color: derive(#f4f4f4, 100%);
+    -fx-background-insets: 0, 0 0 0 1;
+    -fx-padding: 0;
+}
+
+.table-view .scroll-bar:vertical .thumb {
+    -fx-background-color: derive(-color-primary, 90%);
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}
 .table-view .column-header-background {
     -fx-background-color: #e8f5ed;
     -fx-border-color: -color-border;

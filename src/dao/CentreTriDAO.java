@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class CentreTriDAO {
     private Connection conn;
@@ -16,11 +15,6 @@ public class CentreTriDAO {
         this.conn = conn;
     }
 
-    /**
-     * Insère un nouveau centre de tri dans la base de données.
-     * @param centre Le centre de tri à insérer
-     * @param adresseId L'ID de l'adresse associée
-     */
     public void create(CentreTri centre, int adresseId) {
         String sql = "INSERT INTO CentreTri (nomCentre, adresse_id) VALUES (?, ?) RETURNING idCentre";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -35,14 +29,10 @@ public class CentreTriDAO {
         } catch (SQLException e) {
             System.err.println("Erreur lors de l'insertion du centre de tri: " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Impossible d'insérer le centre de tri", e);
         }
     }
 
-    /**
-     * Recherche un centre de tri par son ID.
-     * @param idCentre L'ID du centre de tri
-     * @return Le CentreTri correspondant, ou null si non trouvé
-     */
     public CentreTri find(int idCentre) {
         String sql = "SELECT ct.idCentre, ct.nomCentre, ct.adresse_id, a.numero, a.nomRue, a.codePostal, a.ville " +
                 "FROM CentreTri ct JOIN Adresse a ON ct.adresse_id = a.id WHERE ct.idCentre = ?";
@@ -58,20 +48,19 @@ public class CentreTriDAO {
                         rs.getString("ville")
                 );
                 CentreTri centre = new CentreTri(rs.getString("nomCentre"), adresse);
-                centre.setIdCentre(rs.getInt("idCentre")); // Définir l'ID manuellement
+                centre.setIdCentre(rs.getInt("idCentre"));
                 return centre;
+            } else {
+                System.out.println("Aucun centre de tri trouvé pour idCentre: " + idCentre);
+                return null;
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de la recherche du centre de tri: " + e.getMessage());
+            System.err.println("Erreur lors de la recherche du centre de tri (idCentre: " + idCentre + "): " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la recherche du centre de tri", e);
         }
-        return null;
     }
 
-    /**
-     * Supprime un centre de tri de la base de données.
-     * @param idCentre L'ID du centre de tri à supprimer
-     */
     public void delete(int idCentre) {
         String sql = "DELETE FROM CentreTri WHERE idCentre = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -85,6 +74,7 @@ public class CentreTriDAO {
         } catch (SQLException e) {
             System.err.println("Erreur lors de la suppression du centre de tri: " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("Erreur lors de la suppression du centre de tri", e);
         }
     }
 }
