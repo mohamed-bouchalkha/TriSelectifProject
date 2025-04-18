@@ -27,24 +27,33 @@ public class BacDAO {
      * @param adresseId L'ID de l'adresse associée
      */
     public void create(Bac bac, int centreId, int adresseId) {
+        String checkCentreSql = "SELECT idCentre FROM CentreTri WHERE idCentre = ?";
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkCentreSql)) {
+            checkStmt.setInt(1, centreId);
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                throw new SQLException("Centre de tri avec id " + centreId + " n'existe pas");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Impossible de vérifier le centre_id", e);
+        }
+
         String sql = "INSERT INTO Bac (idBac, centre_id, couleur, capacite, contenu, adresse_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, bac.getIdBac(), java.sql.Types.OTHER); // Passer UUID directement
+            stmt.setObject(1, bac.getIdBac(), java.sql.Types.OTHER);
             stmt.setInt(2, centreId);
             stmt.setString(3, bac.getCouleurBac().name());
             stmt.setInt(4, bac.getCapacite());
-            stmt.setInt(5, bac.getContenu());
+            stmt.setInt(5, bac.getContenu()); // Gère le contenu
             stmt.setInt(6, adresseId);
             int rowsAffected = stmt.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Bac ajouté avec succès (ID: " + bac.getIdBac() + ").");
             }
         } catch (SQLException e) {
-            System.err.println("Erreur lors de l'insertion du bac: " + e.getMessage());
-            e.printStackTrace();
+            throw new RuntimeException("Impossible d'insérer le bac", e);
         }
     }
-
     /**
      * Recherche tous les bacs associés à un centre de tri.
      * @param centreId L'ID du centre de tri
@@ -92,25 +101,22 @@ public class BacDAO {
      * @param bac Le bac à mettre à jour
      * @param adresseId L'ID de l'adresse associée
      */
-    public void update(Bac bac, int adresseId) {
+    public boolean update(Bac bac, int adresseId) {
         String sql = "UPDATE Bac SET couleur = ?, capacite = ?, contenu = ?, adresse_id = ? WHERE idBac = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, bac.getCouleurBac().name());
             stmt.setInt(2, bac.getCapacite());
-            stmt.setInt(3, bac.getContenu());
+            stmt.setInt(3, bac.getContenu()); // Gère le contenu
             stmt.setInt(4, adresseId);
-            stmt.setObject(5, bac.getIdBac(), java.sql.Types.OTHER); // Passer UUID directement
+            stmt.setObject(5, bac.getIdBac(), java.sql.Types.OTHER);
             int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Bac mis à jour avec succès (ID: " + bac.getIdBac() + ").");
-            }
+            return rowsAffected > 0;
         } catch (SQLException e) {
             System.err.println("Erreur lors de la mise à jour du bac: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-    }
-
-    /**
+    }    /**
      * Supprime un bac de la base de données.
      * @param idBac L'ID du bac à supprimer
      */

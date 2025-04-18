@@ -51,23 +51,22 @@ public class AdresseDAO {
         }
         return null;
     }
-    public void update(Adresse a, int adresseId) {
+    public boolean update(Adresse adresse, int adresseId) {
         String sql = "UPDATE Adresse SET numero = ?, nomRue = ?, codePostal = ?, ville = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, a.getNum());
-            stmt.setString(2, a.getNomRue());
-            stmt.setInt(3, a.getCodeP());
-            stmt.setString(4, a.getVille());
+            stmt.setInt(1, adresse.getNum());
+            stmt.setString(2, adresse.getNomRue());
+            stmt.setInt(3, adresse.getCodeP());
+            stmt.setString(4, adresse.getVille());
             stmt.setInt(5, adresseId);
             int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Adresse mise à jour.");
-            }
+            return rowsAffected > 0;
         } catch (SQLException e) {
+            System.err.println("Erreur lors de la mise à jour de l'adresse: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
-
     public int findByAdresse(Adresse a) {
         String sql = "SELECT id FROM Adresse WHERE numero = ? AND nomRue = ? AND codePostal = ? AND ville = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

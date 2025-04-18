@@ -174,7 +174,9 @@ public class CentreTri {
         Menage m = new Menage(nCompte, nMDP, nAdresse);
         Menage.getMapMenage().put(m.getNom(), m);
     }
-
+    public String getNomCentre() {
+        return this.nomCentre;
+    }
     public String toString() {
         return "CentreTri {\n\tId centre : " + this.idCentre + "\n\tNom centre : " + this.nomCentre
                 + "\n\tAdresse centre : " + this.adresseCentre + "\n}\n";
