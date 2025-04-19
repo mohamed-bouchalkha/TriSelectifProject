@@ -31,7 +31,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class GestionBacsController {
-
+    @FXML private Button deplacerBacsButton;
     @FXML private TableView<Bac> bacsTable;
     @FXML private TableColumn<Bac, String> idColumn;
     @FXML private TableColumn<Bac, String> couleurColumn;
@@ -275,7 +275,24 @@ public class GestionBacsController {
             showErrorMessage("ID du centre non défini. Ajout désactivé.");
         }
     }
-
+    @FXML
+    public void handleDeplacerBacs() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/pages/deplacementBacs.fxml"));
+            Parent deplacementBacsPage = loader.load();
+            BacDeplacementController controller = loader.getController();
+            controller.setCentreId(centreId);
+            controller.setCentreName(centreName);
+            Scene scene = new Scene(deplacementBacsPage);
+            Stage stage = (Stage) bacsTable.getScene().getWindow();
+            stage.setScene(scene);
+            stage.setTitle("Déplacement des Bacs");
+            stage.show();
+        } catch (IOException e) {
+            showErrorMessage("Erreur lors de l'ouverture de la page de déplacement des bacs: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     private void loadBacs() {
         if (centreId <= 0) {
             System.out.println("loadBacs: centreId non défini (" + centreId + ")");

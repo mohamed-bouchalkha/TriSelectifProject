@@ -88,14 +88,25 @@ public class Adresse {
 	}
 
 	public Adresse(int id, int nNum, String nRue, int nCodeP, String nVille) {
-		if (nNum > 0 && nRue != null && !nRue.isEmpty() && nCodeP > 1000 && nCodeP < 100000 && nVille != null && !nVille.isEmpty()) {
-			this.id = id;
-			this.numero = nNum;
-			this.nomRue = nRue;
-			this.codePostal = nCodeP;
-			this.ville = nVille;
+		if (nNum <= 0) {
+			throw new IllegalArgumentException("Le numéro doit être supérieur à 0");
 		}
+		if (nRue == null || nRue.isEmpty()) {
+			throw new IllegalArgumentException("Le nom de la rue ne peut pas être vide ou null");
+		}
+		if (nCodeP <= 1000 || nCodeP >= 100000) {
+			throw new IllegalArgumentException("Le code postal doit être compris entre 1000 et 99999");
+		}
+		if (nVille == null || nVille.isEmpty()) {
+			throw new IllegalArgumentException("La ville ne peut pas être vide ou null");
+		}
+		this.id = id;
+		this.numero = nNum;
+		this.nomRue = nRue;
+		this.codePostal = nCodeP;
+		this.ville = nVille;
 	}
+
 	public Adresse(int nNum, String nRue, int nCodeP, String nVille) {
 		this(-1, nNum, nRue, nCodeP, nVille);
 	}

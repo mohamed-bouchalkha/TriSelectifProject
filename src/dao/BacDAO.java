@@ -135,4 +135,25 @@ public class BacDAO {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * Met à jour l'adresse d'un bac dans la base de données.
+     * @param idBac L'ID du bac à déplacer
+     * @param adresseId L'ID de la nouvelle adresse
+     * @return true si la mise à jour est réussie, false sinon
+     */
+    public boolean updateAdresse(UUID idBac, int adresseId) {
+        String sql = "UPDATE Bac SET adresse_id = ? WHERE idBac = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, adresseId);
+            stmt.setObject(2, idBac, java.sql.Types.OTHER);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la mise à jour de l'adresse du bac: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

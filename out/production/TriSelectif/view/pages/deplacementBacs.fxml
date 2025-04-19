@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.BacDeplacementController">
+
+    <top>
+        <VBox spacing="5">
+            <HBox alignment="CENTER_LEFT" styleClass="header-container">
+                <padding>
+                    <Insets left="25.0" right="25.0" top="20.0" bottom="20.0" />
+                </padding>
+                <Label text="Déplacement des Bacs" styleClass="header-title"/>
+                <Region HBox.hgrow="ALWAYS" />
+                <Label fx:id="centreTitleLabel" text="Centre de tri" styleClass="header-subtitle"/>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" styleClass="toolbar">
+                <padding>
+                    <Insets left="25.0" right="25.0" top="10.0" bottom="10.0" />
+                </padding>
+                <Button fx:id="refreshButton" text="Actualiser" styleClass="toolbar-button" onAction="#handleRefresh">
+                    <tooltip>
+                        <Tooltip text="Actualiser la liste des bacs" />
+                    </tooltip>
+                </Button>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="logoutButton" text="Déconnexion" styleClass="toolbar-button" onAction="#handleLogout">
+                    <tooltip>
+                        <Tooltip text="Se déconnecter et revenir à la page de connexion" />
+                    </tooltip>
+                </Button>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="main-scroll-pane">
+            <VBox spacing="20.0">
+                <padding>
+                    <Insets top="20.0" right="25.0" bottom="20.0" left="25.0" />
+                </padding>
+
+                <!-- Formulaire pour déplacer un bac -->
+                <VBox styleClass="form-container">
+                    <Label text="Déplacer un bac" styleClass="form-title" />
+                    <Separator styleClass="form-separator" />
+
+                    <GridPane hgap="25" vgap="15">
+                        <columnConstraints>
+                            <javafx.scene.layout.ColumnConstraints percentWidth="50" />
+                            <javafx.scene.layout.ColumnConstraints percentWidth="50" />
+                        </columnConstraints>
+
+                        <!-- Colonne gauche - Sélection du bac -->
+                        <VBox spacing="15" GridPane.columnIndex="0" GridPane.rowIndex="0" styleClass="form-section">
+                            <Label text="Sélection du bac" styleClass="section-subtitle" />
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container">
+                                <Label text="Bac :" styleClass="form-label" />
+                                <ComboBox fx:id="bacCombo" promptText="Sélectionnez un bac" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                    <tooltip>
+                                        <Tooltip text="Sélectionnez le bac à déplacer" />
+                                    </tooltip>
+                                </ComboBox>
+                            </HBox>
+                        </VBox>
+
+                        <!-- Colonne droite - Adresse -->
+                        <VBox spacing="15" GridPane.columnIndex="1" GridPane.rowIndex="0" styleClass="form-section">
+                            <Label text="Adresse de destination" styleClass="section-subtitle" />
+
+                            <!-- Sélection entre adresse existante et nouvelle adresse -->
+                            <HBox spacing="20" alignment="CENTER_LEFT">
+                                <RadioButton fx:id="existingAddressRadio" text="Adresse existante" selected="true" styleClass="form-label">
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="addressToggleGroup" />
+                                    </toggleGroup>
+                                </RadioButton>
+                                <RadioButton fx:id="newAddressRadio" text="Nouvelle adresse" styleClass="form-label" toggleGroup="$addressToggleGroup" />
+                            </HBox>
+
+                            <!-- ComboBox pour adresses existantes -->
+                            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container" fx:id="existingAddressBox">
+                                <Label text="Adresse :" styleClass="form-label" />
+                                <ComboBox fx:id="adresseCombo" promptText="Sélectionnez une adresse" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                    <tooltip>
+                                        <Tooltip text="Sélectionnez une adresse existante" />
+                                    </tooltip>
+                                </ComboBox>
+                            </HBox>
+
+                            <!-- Champs pour nouvelle adresse -->
+                            <VBox fx:id="newAddressBox" spacing="10" styleClass="form-section" visible="false" managed="false">
+                                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container">
+                                    <Label text="Numéro :" styleClass="form-label" />
+                                    <TextField fx:id="numeroField" promptText="Numéro" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                        <tooltip>
+                                            <Tooltip text="Numéro de rue" />
+                                        </tooltip>
+                                    </TextField>
+                                </HBox>
+                                <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container">
+                                    <Label text="Rue :" styleClass="form-label" />
+                                    <TextField fx:id="rueField" promptText="Nom de la rue" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                        <tooltip>
+                                            <Tooltip text="Nom de la rue" />
+                                        </tooltip>
+                                    </TextField>
+                                </HBox>
+                                <HBox spacing="15" alignment="CENTER_LEFT">
+                                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container" HBox.hgrow="ALWAYS">
+                                        <Label text="Code Postal :" styleClass="form-label" />
+                                        <TextField fx:id="codePostalField" promptText="Code postal" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                            <tooltip>
+                                                <Tooltip text="Code postal (5 chiffres)" />
+                                            </tooltip>
+                                        </TextField>
+                                    </HBox>
+                                    <HBox spacing="10" alignment="CENTER_LEFT" styleClass="form-field-container" HBox.hgrow="ALWAYS">
+                                        <Label text="Ville :" styleClass="form-label" />
+                                        <TextField fx:id="villeField" promptText="Ville" styleClass="form-field" HBox.hgrow="ALWAYS">
+                                            <tooltip>
+                                                <Tooltip text="Nom de la ville" />
+                                            </tooltip>
+                                        </TextField>
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </GridPane>
+
+                    <!-- Message d'erreur ou de succès -->
+                    <Label fx:id="messageLabel" styleClass="message-label" wrapText="true" />
+
+                    <!-- Boutons d'action -->
+                    <HBox spacing="15" alignment="CENTER_RIGHT" styleClass="action-buttons-container">
+                        <Button fx:id="clearButton" text="Effacer" styleClass="secondary-button" onAction="#handleClearFormulaire">
+                            <tooltip>
+                                <Tooltip text="Effacer les champs du formulaire" />
+                            </tooltip>
+                        </Button>
+                        <Button fx:id="deplacerButton" text="Déplacer" styleClass="primary-button" onAction="#handleDeplacerBac">
+                            <tooltip>
+                                <Tooltip text="Déplacer le bac sélectionné vers l'adresse choisie" />
+                            </tooltip>
+                        </Button>
+                    </HBox>
+                </VBox>
+
+                <!-- TableView des bacs -->
+                <VBox styleClass="table-container" VBox.vgrow="ALWAYS">
+                    <Label text="Liste des bacs" styleClass="section-title" />
+                    <TableView fx:id="bacsTable" VBox.vgrow="ALWAYS" prefHeight="400">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="ID Bac" prefWidth="150.0" />
+                            <TableColumn fx:id="couleurColumn" text="Couleur" prefWidth="100.0" />
+                            <TableColumn fx:id="adresseColumn" text="Adresse" prefWidth="250.0" />
+                        </columns>
+                        <placeholder>
+                            <Label text="Aucun bac disponible" styleClass="table-placeholder" />
+                        </placeholder>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" spacing="15" styleClass="footer">
+            <padding>
+                <Insets left="25.0" right="25.0" top="15.0" bottom="15.0" />
+            </padding>
+            <Button fx:id="retourButton" text="Retour à la Gestion des Bacs" styleClass="secondary-button" onAction="#handleRetour">
+                <tooltip>
+                    <Tooltip text="Revenir à la gestion des bacs" />
+                </tooltip>
+            </Button>
+            <Region HBox.hgrow="ALWAYS" />
+            <Label text="© 2025 - Application de Tri Sélectif" styleClass="copyright-text" />
+        </HBox>
+    </bottom>
+
+    <stylesheets>
+        <URL value="@../css/gestionBacs.css" />
+    </stylesheets>
+</BorderPane>

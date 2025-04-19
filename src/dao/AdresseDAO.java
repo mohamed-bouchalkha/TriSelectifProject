@@ -2,6 +2,8 @@ package dao;
 
 import model.Adresse;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static main.Main.conn;
 
@@ -11,7 +13,31 @@ public class AdresseDAO {
     public AdresseDAO(Connection conn) {
         this.conn = conn;
     }
-
+    /**
+     * Récupère toutes les adresses de la base de données.
+     * @return Liste des adresses
+     */
+    public List<Adresse> findAll() {
+        List<Adresse> adresses = new ArrayList<>();
+        String sql = "SELECT * FROM Adresse";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Adresse adresse = new Adresse(
+                        rs.getInt("id"),
+                        rs.getInt("numero"),
+                        rs.getString("nomRue"),
+                        rs.getInt("codePostal"),
+                        rs.getString("ville")
+                );
+                adresses.add(adresse);
+            }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des adresses: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return adresses;
+    }
     public int create(Adresse a) {
         String sql = "INSERT INTO Adresse (numero, nomRue, codePostal, ville) VALUES (?, ?, ?, ?) RETURNING id";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
